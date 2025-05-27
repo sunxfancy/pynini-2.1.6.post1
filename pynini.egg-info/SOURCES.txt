@@ -147,3 +147,4 @@ third_party/bazel/README.md
 third_party/bazel/cython_library.bzl
 third_party/bazel/python_configure.bzl
 third_party/bazel/variety.tpl
+third_party/openfst/BUILD.bazel

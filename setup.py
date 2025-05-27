@@ -26,20 +26,28 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-COMPILE_ARGS = [
-    "-std=c++17",
-    "-Wno-register",
-    "-Wno-deprecated-declarations",
-    "-Wno-unused-function",
-    "-Wno-unused-local-typedefs",
-    "-funsigned-char",
-]
-if sys.platform.startswith("darwin"):
-  COMPILE_ARGS.append("-stdlib=libc++")
-  COMPILE_ARGS.append("-mmacosx-version-min=10.12")
-
-
-LIBRARIES = ["fstfarscript", "fstfar", "fstscript", "fst", "m", "dl"]
+if sys.platform.startswith("win"):
+    # Windows 下使用 MSVC 编译器参数
+    COMPILE_ARGS = [
+        "/std:c++17",
+        "/DFST_NO_DYNAMIC_LINKING=1",
+        "/DNOMINMAX",
+        "/D_USE_MATH_DEFINES"
+    ]
+    LIBRARIES = ["fstfarscript", "fstfar", "fstscript", "fst"]
+else:
+    COMPILE_ARGS = [
+        "-std=c++17",
+        "-Wno-register",
+        "-Wno-deprecated-declarations",
+        "-Wno-unused-function",
+        "-Wno-unused-local-typedefs",
+        "-funsigned-char",
+    ]
+    if sys.platform.startswith("darwin"):
+        COMPILE_ARGS.append("-stdlib=libc++")
+        COMPILE_ARGS.append("-mmacosx-version-min=10.12")
+    LIBRARIES = ["fstfarscript", "fstfar", "fstscript", "fst", "m", "dl"]
 
 
 pywrapfst = Extension(
@@ -48,6 +56,8 @@ pywrapfst = Extension(
     extra_compile_args=COMPILE_ARGS,
     libraries=LIBRARIES,
     sources=["extensions/_pywrapfst.pyx"],
+    include_dirs=["third_party/openfst_install/include"],
+    library_dirs=["third_party/openfst_install/lib"],
 )
 pynini = Extension(
     name="_pynini",
@@ -71,6 +81,8 @@ pynini = Extension(
         "extensions/stringprintscript.cc",
         "extensions/stringutil.cc",
     ],
+    include_dirs=["third_party/openfst_install/include"],
+    library_dirs=["third_party/openfst_install/lib"],
 )
 
 

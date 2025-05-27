@@ -1,4 +1,4 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: pynini
 Version: 2.1.6.post1
 Summary: Finite-state grammar compilation
@@ -27,6 +27,9 @@ Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 License-File: LICENSE
 License-File: AUTHORS
+Dynamic: author-email
+Dynamic: home-page
+Dynamic: license-file
 
 # OpenGrm Pynini
 

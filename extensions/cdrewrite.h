@@ -47,6 +47,10 @@
 #include "cross.h"
 #include "optimize.h"
 
+#ifdef OPTIONAL
+#undef OPTIONAL
+#endif
+
 namespace fst {
 
 enum class CDRewriteDirection { LEFT_TO_RIGHT, RIGHT_TO_LEFT, SIMULTANEOUS };
