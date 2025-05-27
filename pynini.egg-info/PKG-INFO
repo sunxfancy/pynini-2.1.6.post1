@@ -64,10 +64,27 @@ There are various ways to install Pynini depending on your platform.
 
 ### Windows
 
-While Pynini is neither designed for nor tested on Windows, it can be installed
-using the
-[Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
-(WSL). Simply enter the WSL environment and follow the Linux instructions below.
+First, compile OpenFst from source on Windows. Here is the windows port of OpenFst:
+https://github.com/sunxfancy/openfst-1.8.3
+
+Then, build OpenFst and install it to the third_party/openfst_install directory:
+
+```
+cd third_party
+git clone https://github.com/sunxfancy/openfst-1.8.3
+mkdir build
+cd build
+cmake ../openfst-1.8.3 -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=../openfst_install
+cmake --build . --config Release --target install
+cmake --install .
+```
+
+Then, build the wheel:
+
+```
+pip install build
+python -m build --wheel
+```
 
 ### MacOS
 

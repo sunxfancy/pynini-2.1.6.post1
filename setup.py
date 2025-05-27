@@ -35,6 +35,8 @@ if sys.platform.startswith("win"):
         "/D_USE_MATH_DEFINES"
     ]
     LIBRARIES = ["fstfarscript", "fstfar", "fstscript", "fst"]
+    # 由于openfst里面有static object用来注册，所以需要wholearchive避免全局对象被优化掉
+    LINK_ARGS = ["/OPT:NOREF", "/WHOLEARCHIVE:fstfar", "/WHOLEARCHIVE:fst"]
 else:
     COMPILE_ARGS = [
         "-std=c++17",
@@ -48,12 +50,13 @@ else:
         COMPILE_ARGS.append("-stdlib=libc++")
         COMPILE_ARGS.append("-mmacosx-version-min=10.12")
     LIBRARIES = ["fstfarscript", "fstfar", "fstscript", "fst", "m", "dl"]
-
+    LINK_ARGS = []
 
 pywrapfst = Extension(
     name="_pywrapfst",
     language="c++",
     extra_compile_args=COMPILE_ARGS,
+    extra_link_args=LINK_ARGS,
     libraries=LIBRARIES,
     sources=["extensions/_pywrapfst.pyx"],
     include_dirs=["third_party/openfst_install/include"],
@@ -63,6 +66,7 @@ pynini = Extension(
     name="_pynini",
     language="c++",
     extra_compile_args=COMPILE_ARGS,
+    extra_link_args=LINK_ARGS,
     libraries=["fstmpdtscript", "fstpdtscript"] + LIBRARIES,
     sources=[
         "extensions/_pynini.pyx",

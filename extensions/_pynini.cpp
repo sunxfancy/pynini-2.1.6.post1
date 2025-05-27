@@ -25,6 +25,11 @@
             "/DNOMINMAX",
             "/D_USE_MATH_DEFINES"
         ],
+        "extra_link_args": [
+            "/OPT:NOREF",
+            "/WHOLEARCHIVE:fstfar",
+            "/WHOLEARCHIVE:fst"
+        ],
         "include_dirs": [
             "extensions",
             "third_party/openfst_install/include"
