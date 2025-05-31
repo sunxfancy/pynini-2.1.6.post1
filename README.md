@@ -12,18 +12,18 @@ following paper:
 
 > K. Gorman. 2016.
 > [Pynini: A Python library for weighted finite-state grammar compilation](http://openfst.cs.nyu.edu/twiki/pub/GRM/Pynini/pynini-paper.pdf).
-> In *Proc. ACL Workshop on Statistical NLP and Weighted Automata*, 75-80.
+> In _Proc. ACL Workshop on Statistical NLP and Weighted Automata_, 75-80.
 
 (Note that some of the code samples in the paper are now out of date and not
 expected to work.)
 
 ## Dependencies
 
--   A standards-compliant C++17 compiler (GCC \>= 7 or Clang \>= 700)
--   The compatible recent version of [OpenFst](http://openfst.org) (see
-    [`NEWS`](NEWS) for this) built with the `grm` extensions (i.e., built with
-    `./configure --enable-grm`) and headers
--   [Python 3.6+](https://www.python.org) and headers
+- A standards-compliant C++17 compiler (GCC \>= 7 or Clang \>= 700)
+- The compatible recent version of [OpenFst](http://openfst.org) (see
+  [`NEWS`](NEWS) for this) built with the `grm` extensions (i.e., built with
+  `./configure --enable-grm`) and headers
+- [Python 3.6+](https://www.python.org) and headers
 
 ## Installation instructions
 
@@ -32,13 +32,13 @@ There are various ways to install Pynini depending on your platform.
 ### Windows
 
 First, compile OpenFst from source on Windows. Here is the windows port of OpenFst:
-https://github.com/sunxfancy/openfst-1.8.3
+<https://github.com/sunxfancy/openfst-1.8.3>
 
 Then, build OpenFst and install it to the third_party/openfst_install directory:
 
-```
+```bash
+git submodule update --init --recursive
 cd third_party
-git clone https://github.com/sunxfancy/openfst-1.8.3
 mkdir build
 cd build
 cmake ../openfst-1.8.3 -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=../openfst_install
@@ -48,7 +48,7 @@ cmake --install .
 
 Then, build the wheel:
 
-```
+```bash
 pip install build
 python -m build --wheel
 ```
@@ -58,6 +58,44 @@ python -m build --wheel
 The pre-compiled library can be installed from
 [`conda-forge`](https://conda-forge.org/) by running `conda install -c
 conda-forge pynini`.
+
+#### For Non-Conda Situation
+
+First, compile OpenFst from source on macOS. Here is the port of OpenFst:
+<https://github.com/sunxfancy/openfst-1.8.3>
+
+Then, build OpenFst and install it to the third_party/openfst_install directory:
+
+```bash
+git submodule update --init --recursive
+cd third_party
+mkdir build
+cd build
+cmake ../openfst-1.8.3 -G "Ninja" -DCMAKE_INSTALL_PREFIX=../openfst_install
+pip install ninja
+ninja install
+```
+
+Then, build the wheel:
+
+```bash
+pip install build
+python -m build --wheel
+```
+
+Finally, patch the share objects
+
+```bash
+pip install delocate
+export DYLD_LIBRARY_PATH="$(pwd)/third_party/openfst_install/lib:$DYLD_LIBRARY_PATH"
+mkdir -p fixed_wheels
+delocate-wheel -w fixed_wheels -v dist/*.whl
+rm -rf dist
+mkdir dist
+mv fixed_wheels/*.whl dist
+```
+
+#### Other Methods
 
 Alternatively, one can build from source from [PyPI](https://pypi.org/) by
 running `pip install pynini`.
