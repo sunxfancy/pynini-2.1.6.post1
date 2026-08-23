@@ -6,6 +6,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
@@ -36,7 +37,7 @@ jobs:
         set -e
         LOG_FILE="build_log_py${{ matrix.python-version }}.txt"
 
-        {
+        if ! {
           echo "=== Start OpenFST Build ==="
           cd third_party
           mkdir build
@@ -70,7 +71,11 @@ jobs:
             mkdir dist
             mv fixed_wheels/*.whl dist
           fi
-        } &> "$LOG_FILE"
+        } &> "$LOG_FILE"; then
+          echo "=== Build failed; last 80 lines of $LOG_FILE ==="
+          tail -n 80 "$LOG_FILE" || true
+          exit 1
+        fi
 
     - name: Install wheel and run tests
       if: success()
@@ -89,6 +94,7 @@ jobs:
           dist/*.whl
 
     - name: Upload build log
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: build-log-${{ matrix.os }}-py${{ matrix.python-version }}
