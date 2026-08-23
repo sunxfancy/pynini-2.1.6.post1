@@ -1,0 +1,108 @@
+name: Build and Release Pynini
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Checkout submodules
+      run: |
+        git submodule update --init --recursive
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install build tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install build cython
+
+    - name: Build OpenFST and Pynini
+      shell: bash
+      run: |
+        set -e
+        LOG_FILE="build_log_py${{ matrix.python-version }}.txt"
+
+        {
+          echo "=== Start OpenFST Build ==="
+          cd third_party
+          mkdir build
+          cd build
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake ../openfst-1.8.3 -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=../openfst_install
+            cmake --build . --config Release --target install
+            cmake --install .
+          else
+            pip install ninja
+            cmake ../openfst-1.8.3 -G Ninja -DCMAKE_INSTALL_PREFIX=../openfst_install
+            ninja install
+          fi
+
+          echo "=== Start Pynini Build ==="
+          cd ../..
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            python -m build --wheel
+          else
+            python -m build --wheel --config-setting=--plat-name=macosx_11_0_arm64
+          fi
+
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            pip install delocate
+            export DYLD_LIBRARY_PATH="$(pwd)/third_party/openfst_install/lib:$DYLD_LIBRARY_PATH"
+            mkdir -p fixed_wheels
+            delocate-wheel -w fixed_wheels -v dist/*.whl
+            rm -rf dist
+            mkdir dist
+            mv fixed_wheels/*.whl dist
+          fi
+        } &> "$LOG_FILE"
+
+    - name: Upload wheel artifact
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: pynini-wheel-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: |
+          dist/*.whl
+
+    - name: Upload build log
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: build_log_py${{ matrix.python-version }}.txt
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download all wheel artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./wheels
+
+    - name: Publish GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: pynini-build-${{ github.run_number }}
+        name: Pynini Wheels
+        body: |
+          Built pynini-2.1.6.post1 wheels for Python 3.9–3.12 on Windows and macOS.
+        files: ./wheels/**/*.whl
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
