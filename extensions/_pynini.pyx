@@ -58,6 +58,7 @@ from cpywrapfst cimport VectorFstClass
 from cpywrapfst cimport WeightClass
 
 from _pywrapfst cimport FarReader
+cimport cpywrapfst as fst
 from _pywrapfst cimport FarWriter
 from _pywrapfst cimport Fst as _Fst
 from _pywrapfst cimport MutableFst as \
@@ -2709,4 +2710,9 @@ FarFileMode = """typing.Literal["r", "w"]"""
 
 FstLike = """typing.Union[Fst, str]"""
 TokenType = """typing.Union[SymbolTableView, typing.Literal["byte", "utf8"]]"""
+
+# Masks fst_error_fatal in-module; see _pywrapfst.pyx. On Windows, each
+# extension module statically links its own copy of OpenFst, so this flag must
+# be cleared here as well to avoid FST errors aborting the process.
+fst.FST_FLAGS_fst_error_fatal = False
 

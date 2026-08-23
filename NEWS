@@ -1,3 +1,10 @@
+v. 2.1.6.post1 (Windows port)
+=============================
+
+* Adds support for Python 3.14
+* Fixes `fst_error_fatal` masking in the `_pynini` extension so FST errors
+  raise Python exceptions instead of aborting the process on Windows
+
 v. 2.1.6.post1 (compatible with OpenFst 1.8.3)
 ========================================
 

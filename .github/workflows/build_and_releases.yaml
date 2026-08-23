@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
     runs-on: ${{ matrix.os }}
 
@@ -72,6 +72,14 @@ jobs:
           fi
         } &> "$LOG_FILE"
 
+    - name: Install wheel and run tests
+      if: success()
+      shell: bash
+      run: |
+        pip install dist/*.whl
+        export PATH="$(pwd)/third_party/openfst_install/bin:$(pwd)/third_party/openfst_install/lib:$PATH"
+        python tests/pynini_test.py
+
     - name: Upload wheel artifact
       if: success()
       uses: actions/upload-artifact@v4
@@ -102,7 +110,7 @@ jobs:
         tag_name: pynini-build-${{ github.run_number }}
         name: Pynini Wheels
         body: |
-          Built pynini-2.1.6.post1 wheels for Python 3.9–3.12 on Windows and macOS.
+          Built pynini-2.1.6.post1 wheels for Python 3.9–3.14 on Windows and macOS.
         files: ./wheels/**/*.whl
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
