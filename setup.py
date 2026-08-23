@@ -49,6 +49,8 @@ else:
     if sys.platform.startswith("darwin"):
         COMPILE_ARGS.append("-stdlib=libc++")
         COMPILE_ARGS.append("-mmacosx-version-min=10.12")
+        # Leaves room for delocate-wheel to rewrite install names.
+        LINK_ARGS.append("-Wl,-headerpad_max_install_names")
     LIBRARIES = ["fstfarscript", "fstfar", "fstscript", "fst", "m", "dl"]
     LINK_ARGS = []
 

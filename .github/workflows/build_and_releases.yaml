@@ -47,7 +47,7 @@ jobs:
             # Let CMake pick the newest installed Visual Studio (runner images
             # no longer pin a specific VS year).
             cmake ../openfst-1.8.3 -A x64 -DCMAKE_INSTALL_PREFIX=../openfst_install
-            cmake --build . --config Release --target install
+            cmake --build . --config Release --target install --parallel
             cmake --install .
           else
             pip install ninja
