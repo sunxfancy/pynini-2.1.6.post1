@@ -44,7 +44,9 @@ jobs:
           cd build
 
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            cmake ../openfst-1.8.3 -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=../openfst_install
+            # Let CMake pick the newest installed Visual Studio (runner images
+            # no longer pin a specific VS year).
+            cmake ../openfst-1.8.3 -A x64 -DCMAKE_INSTALL_PREFIX=../openfst_install
             cmake --build . --config Release --target install
             cmake --install .
           else
